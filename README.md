@@ -148,6 +148,4 @@ Routes → Controllers → Services → Database (Knex / PostgreSQL)
 ## 🔜 Upcoming Features
 
 - [ ] JWT Authentication
-- [ ] Admin dashboard (React Frontend)
-- [ ] Property search with interactive map
 - [ ] Property image uploads
