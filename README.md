@@ -50,7 +50,7 @@ REST API for real estate property management. Built as a backend portfolio proje
 
 ```bash
 git clone https://github.com/KuroVs/findrent_backend.git
-cd findrent-backend
+cd findrent_backend
 ```
 
 ### 2. Install dependencies
