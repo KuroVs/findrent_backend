@@ -10,35 +10,30 @@ REST API for real estate property management. Built as a backend portfolio proje
 - **Query Builder:** Knex.js
 - **Documentation:** Swagger / OpenAPI 3.0
 
+
 ## 📁 Project Structure
 
-findrent_backend/
-│
-├── config/
-│   ├── db.js
-│   └── swagger.js
-│
-├── controllers/
-│   ├── owners.controller.js
-│   ├── properties.controller.js
-│   └── amenities.controller.js
-│
-├── services/
-│   ├── owners.service.js
-│   ├── properties.service.js
-│   └── amenities.service.js
-│
-├── routes/
-│   ├── owners.routes.js
-│   ├── properties.routes.js
-│   └── amenities.routes.js
-│
-├── database/
-│   └── migrations/
-│
-├── index.js
-├── knexfile.js
-└── README.md
+    findrent_backend/
+    ├── config/
+    │   ├── db.js
+    │   └── swagger.js
+    ├── controllers/
+    │   ├── owners.controller.js
+    │   ├── properties.controller.js
+    │   └── amenities.controller.js
+    ├── services/
+    │   ├── owners.service.js
+    │   ├── properties.service.js
+    │   └── amenities.service.js
+    ├── routes/
+    │   ├── owners.routes.js
+    │   ├── properties.routes.js
+    │   └── amenities.routes.js
+    ├── database/
+    │   └── migrations/
+    ├── index.js
+    ├── knexfile.js
+    └── README.md
 
 ## 🗄️ Database Schema
 
@@ -132,12 +127,16 @@ http://localhost:3000/api-docs
 | DELETE | `/amenities/:id` | Delete amenity |
 
 ### Query filters for GET /properties
-?city=monteria
-?min_price=1000000
-?max_price=3000000
-?bedrooms=2
-?bathrooms=1
-?page=1&limit=10
+
+| Filter | Type | Example |
+|--------|------|---------|
+| `city` | string | `?city=monteria` |
+| `min_price` | number | `?min_price=1000000` |
+| `max_price` | number | `?max_price=3000000` |
+| `bedrooms` | integer | `?bedrooms=2` |
+| `bathrooms` | integer | `?bathrooms=1` |
+| `page` | integer | `?page=1` |
+| `limit` | integer | `?limit=10` |
 
 ## 🏗️ Architecture
 Routes → Controllers → Services → Database (Knex / PostgreSQL)
