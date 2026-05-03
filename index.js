@@ -1,7 +1,8 @@
 const db = require('./config/db');
 const express = require('express');
 const swaggerUi = require('swagger-ui-express');       // ✅ NUEVO
-const swaggerSpec = require('./config/swagger');   
+const swaggerSpec = require('./config/swagger');  
+const cors = require('cors') 
 
 db.raw('select 1+1 as result')
   .then(() => console.log('✅ Conectado a PostgreSQL con Knex'))
@@ -10,6 +11,8 @@ db.raw('select 1+1 as result')
 
 const app = express();
 
+// app.use(cors({ origin: 'dominio' }))
+app.use(cors())
 app.use(express.json());
 
 // Importar rutas
