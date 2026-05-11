@@ -28,11 +28,18 @@ const getById = async (id) => {
 };
 
 const create = async (data) => {
+    if (data.number_document) {
+        const existing = await db('owners')
+            .where({ number_document: data.number_document })
+            .first()
+        if (existing) throw new Error('An owner with this document already exists')
+    }
+
     const [owner] = await db('owners')
         .insert(data)
-        .returning('*');
-    return owner;
-};
+        .returning('*')
+    return owner
+}
 
 const update = async (id, data) => {
     const owner = await db('owners')
