@@ -1,7 +1,24 @@
 const db = require('../config/db');
 
-const getAll = async () => {
-    return await db('owners').select('*');
+const getAll = async (filters = {}) => {
+    const page   = parseInt(filters.page)  || 1;
+    const limit  = parseInt(filters.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const [{ count }] = await db('owners').count('id as count');
+
+    const data = await db('owners')
+        .select('*')
+        .limit(limit)
+        .offset(offset);
+
+    return {
+        data,
+        page,
+        limit,
+        total: parseInt(count),
+        totalPages: Math.ceil(parseInt(count) / limit)
+    };
 };
 
 const getById = async (id) => {
@@ -17,9 +34,7 @@ const create = async (data) => {
     return owner;
 };
 
-// ✅ NUEVO
 const update = async (id, data) => {
-
     const owner = await db('owners')
         .where({ id })
         .first();
@@ -39,9 +54,7 @@ const update = async (id, data) => {
     return updated;
 };
 
-// ✅ NUEVO
 const remove = async (id) => {
-
     const owner = await db('owners')
         .where({ id })
         .first();

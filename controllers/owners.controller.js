@@ -2,7 +2,7 @@ const ownersService = require('../services/owners.service');
 
 const getOwners = async (req, res) => {
     try {
-        const owners = await ownersService.getAll();
+        const owners = await ownersService.getAll(req.query);
         res.status(200).json(owners);
     } catch (error) {
         res.status(500).json({ message: error.message });
