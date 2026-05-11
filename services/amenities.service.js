@@ -10,12 +10,17 @@ const getById = async (id) => {
         .first();
 };
 
-const create = async ({ name, description }) => {
+const create = async (data) => {
+    const existing = await db('amenities')
+        .where({ name: data.name })
+        .first()
+    if (existing) throw new Error('Ya existe una amenidad con este nombre')
+
     const [amenity] = await db('amenities')
-        .insert({ name, description })
-        .returning('*');
-    return amenity;
-};
+        .insert(data)
+        .returning('*')
+    return amenity
+}
 
 // ✅ NUEVO
 const update = async (id, data) => {
@@ -24,7 +29,7 @@ const update = async (id, data) => {
         .where({ id })
         .first();
 
-    if (!amenity) throw new Error('Amenity not found');
+    if (!amenity) throw new Error('Amenidad no encontrada')
 
     // Si mandan un name que ya existe en otra amenidad, Postgres lanzará
     // error por el unique constraint. Lo capturamos con un mensaje claro.
@@ -34,7 +39,7 @@ const update = async (id, data) => {
             .whereNot({ id })
             .first();
 
-        if (existing) throw new Error('Amenity name already exists');
+        if (existing) throw new Error('Ya existe una amenidad con este nombre')
     }
 
     const [updated] = await db('amenities')
@@ -55,20 +60,20 @@ const remove = async (id) => {
         .where({ id })
         .first();
 
-    if (!amenity) throw new Error('Amenity not found');
+    if (!amenity) throw new Error('Amenidad no encontrada')
 
     // Verificar si alguna propiedad está usando esta amenidad
     const inUse = await db('property_amenities')
         .where({ amenity_id: id })
         .first();
 
-    if (inUse) throw new Error('Amenity is in use by one or more properties');
+    if (inUse) throw new Error('No se puede eliminar porque está en uso')
 
     await db('amenities')
         .where({ id })
         .delete();
 
-    return { message: 'Amenity deleted successfully' };
+    return { message: 'Amenidad eliminada exitosamente' };
 };
 
 module.exports = {

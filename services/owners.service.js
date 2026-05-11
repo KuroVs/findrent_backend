@@ -32,7 +32,7 @@ const create = async (data) => {
         const existing = await db('owners')
             .where({ number_document: data.number_document })
             .first()
-        if (existing) throw new Error('An owner with this document already exists')
+        if (existing) throw new Error('Ya existe un propietario con este documento')
     }
 
     const [owner] = await db('owners')
@@ -44,10 +44,15 @@ const create = async (data) => {
 const update = async (id, data) => {
     const owner = await db('owners')
         .where({ id })
-        .first();
+        .first()
+    if (!owner) throw new Error('Propietario no encontrado')
 
-    if (!owner) {
-        throw new Error('Owner not found');
+    if (data.number_document) {
+        const existing = await db('owners')
+            .where({ number_document: data.number_document })
+            .whereNot({ id })
+            .first()
+        if (existing) throw new Error('Ya existe un propietario con este documento')
     }
 
     const [updated] = await db('owners')
@@ -56,25 +61,22 @@ const update = async (id, data) => {
             ...data,
             updated_at: db.fn.now()
         })
-        .returning('*');
-
-    return updated;
-};
+        .returning('*')
+    return updated
+}
 
 const remove = async (id) => {
     const owner = await db('owners')
         .where({ id })
         .first();
 
-    if (!owner) {
-        throw new Error('Owner not found');
-    }
+    if (!owner) throw new Error('Propietario no encontrado')
 
     await db('owners')
         .where({ id })
         .delete();
 
-    return { message: 'Owner deleted successfully' };
+    return { message: 'Propietario eliminado exitosamente' };
 };
 
 module.exports = {
