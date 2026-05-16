@@ -131,6 +131,7 @@ const getById = async (id) => {
             'p.id as property_id',
             'p.title',
             'p.description',
+            'p.is_active',
             'p.price',
             'p.city',
             'p.address',
@@ -151,6 +152,7 @@ const getById = async (id) => {
 
     const property = {
         ...buildPropertyObject(rows[0]),
+        is_active: rows[0].is_active, 
         description: rows[0].description,
         address: rows[0].address
     };
