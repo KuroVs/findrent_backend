@@ -8,6 +8,7 @@ const buildPropertyObject = (row) => ({
     bedrooms: row.bedrooms,
     bathrooms: row.bathrooms,
     area_m2: parseFloat(row.area_m2),
+    is_active: row.is_active,
     owner: {
         id: parseInt(row.owner_id),
         full_name: row.full_name,
@@ -84,6 +85,7 @@ const getAll = async (filters = {}) => {
             'p.bedrooms',
             'p.bathrooms',
             'p.area_m2',
+            'p.is_active',
             'o.id as owner_id',
             'o.full_name',
             'o.last_name',
