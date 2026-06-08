@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const axios = require('axios');
 
 const buildPropertyObject = (row) => ({
     id: row.property_id,
@@ -7,8 +8,12 @@ const buildPropertyObject = (row) => ({
     city: row.city,
     bedrooms: row.bedrooms,
     bathrooms: row.bathrooms,
-    area_m2: parseFloat(row.area_m2),
+    area_m2: row.area_m2 ? parseFloat(row.area_m2) : null,
     is_active: row.is_active,
+    operation_type: row.operation_type,
+    latitude: row.latitude,
+    longitude: row.longitude,
+
     owner: {
         id: parseInt(row.owner_id),
         full_name: row.full_name,
@@ -18,6 +23,56 @@ const buildPropertyObject = (row) => ({
     },
     amenities: []
 });
+
+const getCoordinates = async (city, address) => {
+
+    if (!city || !address) {
+        return {
+            latitude: null,
+            longitude: null
+        };
+    }
+
+    try {
+
+        const query = `${address}, ${city}, Colombia`;
+
+        const response = await axios.get(
+            'https://nominatim.openstreetmap.org/search',
+            {
+                params: {
+                    q: query,
+                    format: 'json',
+                    limit: 1
+                },
+                headers: {
+                    'User-Agent': 'FindRent'
+                }
+            }
+        );
+
+        if (!response.data.length) {
+            return {
+                latitude: null,
+                longitude: null
+            };
+        }
+
+        return {
+            latitude: parseFloat(response.data[0].lat),
+            longitude: parseFloat(response.data[0].lon)
+        };
+
+    } catch (error) {
+
+        console.error('Error obtaining coordinates:', error.message);
+
+        return {
+            latitude: null,
+            longitude: null
+        };
+    }
+};
 
 const getAll = async (filters = {}) => {
 
@@ -41,6 +96,9 @@ const getAll = async (filters = {}) => {
         }
         if (filters.bathrooms) {
             q.where('p.bathrooms', parseInt(filters.bathrooms));
+        }
+        if (filters.operation_type) {
+            q.where('p.operation_type', filters.operation_type);
         }
         return q;
     };
@@ -86,6 +144,9 @@ const getAll = async (filters = {}) => {
             'p.bathrooms',
             'p.area_m2',
             'p.is_active',
+            'p.operation_type',
+            'p.latitude',
+            'p.longitude',
             'o.id as owner_id',
             'o.full_name',
             'o.last_name',
@@ -138,6 +199,9 @@ const getById = async (id) => {
             'p.bedrooms',
             'p.bathrooms',
             'p.area_m2',
+            'p.operation_type',
+            'p.latitude',
+            'p.longitude',
             'o.id as owner_id',
             'o.full_name',
             'o.last_name',
@@ -171,15 +235,28 @@ const getById = async (id) => {
 };
 
 const create = async ({
-    owner_id, title, description, price,
-    city, address, bedrooms, bathrooms, area_m2
+    owner_id, title, description, price, city, address, bedrooms,
+    bathrooms, area_m2, operation_type
 }) => {
-    const owner = await db('owners').where({ id: owner_id }).first();
-    if (!owner) throw new Error('Owner not found');
-    if (price <= 0) throw new Error('Price must be greater than 0');
+
+    const owner = await db('owners')
+        .where({ id: owner_id })
+        .first();
+
+    if (!owner) {
+        throw new Error('Owner not found');
+    }
+
+    if (price <= 0) {
+        throw new Error('Price must be greater than 0');
+    }
+
+    const { latitude, longitude } =
+        await getCoordinates(city, address);
 
     const [property] = await db('properties')
-        .insert({ owner_id, title, description, price, city, address, bedrooms, bathrooms, area_m2 })
+        .insert({owner_id, title, description, price, city, address, bedrooms, bathrooms, area_m2, operation_type, latitude, longitude
+        })
         .returning('*');
 
     return property;
@@ -198,21 +275,48 @@ const addAmenities = async (property_id, amenity_ids) => {
 
 const update = async (id, data) => {
 
-    const property = await db('properties').where({ id }).first();
-    if (!property) throw new Error('Property not found');
+    const property = await db('properties')
+        .where({ id })
+        .first();
+
+    if (!property) {
+        throw new Error('Property not found');
+    }
 
     if (data.owner_id) {
-        const owner = await db('owners').where({ id: data.owner_id }).first();
-        if (!owner) throw new Error('Owner not found');
+
+        const owner = await db('owners')
+            .where({ id: data.owner_id })
+            .first();
+
+        if (!owner) {
+            throw new Error('Owner not found');
+        }
     }
 
     if (data.price !== undefined && data.price <= 0) {
         throw new Error('Price must be greater than 0');
     }
 
+    // Recalcular coordenadas si cambia ciudad o dirección
+    if (data.city || data.address) {
+
+        const city = data.city || property.city;
+        const address = data.address || property.address;
+
+        const { latitude, longitude } =
+            await getCoordinates(city, address);
+
+        data.latitude = latitude;
+        data.longitude = longitude;
+    }
+
     const [updated] = await db('properties')
         .where({ id })
-        .update({ ...data, updated_at: db.fn.now() })
+        .update({
+            ...data,
+            updated_at: db.fn.now()
+        })
         .returning('*');
 
     return updated;

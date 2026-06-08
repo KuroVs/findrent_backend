@@ -30,30 +30,36 @@ const propertiesController = require('../controllers/properties.controller');
  *         name: city
  *         schema:
  *           type: string
- *         example: Monteria
+ *         example:
  *       - in: query
  *         name: min_price
  *         schema:
  *           type: number
- *         example: 1000000
+ *         example: 
  *       - in: query
  *         name: max_price
  *         schema:
  *           type: number
- *         example: 3000000
+ *         example: 
  *       - in: query
  *         name: bedrooms
  *         schema:
  *           type: integer
- *         example: 2
+ *         example: 
  *       - in: query
  *         name: bathrooms
  *         schema:
  *           type: integer
- *         example: 1
+ *         example: 
+ *       - in: query
+ *         name: operation_type
+ *         schema:
+ *           type: string
+ *           enum: [SALE, RENT]
+ *         example: SALE
  *     responses:
  *       200:
- *         description: Lista paginada de propiedades
+ *         description: Lista paginada de propiedades con filtros
  */
 router.get('/', propertiesController.getAllProperties);
 
@@ -94,8 +100,10 @@ router.get('/:id', propertiesController.getPropertyById);
  *               - title
  *               - price
  *               - city
+ *               - address
  *               - bedrooms
  *               - bathrooms
+ *               - operation_type
  *             properties:
  *               owner_id:
  *                 type: integer
@@ -111,10 +119,10 @@ router.get('/:id', propertiesController.getPropertyById);
  *                 example: 1200000
  *               city:
  *                 type: string
- *                 example: Monteria
+ *                 example: Medellin
  *               address:
  *                 type: string
- *                 example: Calle 10 #5-23
+ *                 example: El Poblado
  *               bedrooms:
  *                 type: integer
  *                 example: 2
@@ -124,9 +132,13 @@ router.get('/:id', propertiesController.getPropertyById);
  *               area_m2:
  *                 type: number
  *                 example: 60
+ *               operation_type:
+ *                 type: string
+ *                 enum: [SALE, RENT]
+ *                 example: RENT
  *     responses:
  *       201:
- *         description: Propiedad creada
+ *         description: Propiedad creada correctamente
  */
 router.post('/', propertiesController.createProperty);
 
@@ -156,7 +168,7 @@ router.post('/', propertiesController.createProperty);
  *                 example: [1, 2, 3]
  *     responses:
  *       200:
- *         description: Amenidades agregadas
+ *         description: Amenidades agregadas correctamente
  */
 router.post('/:id/amenities', propertiesController.addAmenitiesToProperty);
 
@@ -180,17 +192,28 @@ router.post('/:id/amenities', propertiesController.addAmenitiesToProperty);
  *             properties:
  *               title:
  *                 type: string
+ *               description:
+ *                 type: string
  *               price:
  *                 type: number
  *               city:
+ *                 type: string
+ *               address:
  *                 type: string
  *               bedrooms:
  *                 type: integer
  *               bathrooms:
  *                 type: integer
+ *               area_m2:
+ *                 type: number
+ *               is_active:
+ *                 type: boolean
+ *               operation_type:
+ *                 type: string
+ *                 enum: [SALE, RENT]
  *     responses:
  *       200:
- *         description: Propiedad actualizada
+ *         description: Propiedad actualizada correctamente
  *       404:
  *         description: Propiedad no encontrada
  */
@@ -235,7 +258,7 @@ router.delete('/:id/amenities/:amenityId', propertiesController.removeAmenityFro
  *           type: integer
  *     responses:
  *       200:
- *         description: Propiedad eliminada
+ *         description: Propiedad eliminada correctamente
  *       404:
  *         description: Propiedad no encontrada
  */
