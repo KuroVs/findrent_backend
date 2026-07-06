@@ -29,7 +29,7 @@ app.use('/properties', propertiesRoutes);
 app.use('/owners', ownersRoutes);
 app.use('/amenities', amenitiesRoutes);
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
