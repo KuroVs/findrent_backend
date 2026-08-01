@@ -12,7 +12,9 @@ db.raw('select 1+1 as result')
 const app = express();
 
 // app.use(cors({ origin: 'dominio' }))
-app.use(cors())
+app.use(cors({
+    origin: process.env.CLIENT_URL || "http://localhost:5173"
+}));
 app.use(express.json());
 
 // Importar rutas
@@ -33,5 +35,5 @@ const PORT = process.env.PORT || 3000
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`Documentación: http://localhost:3000/api-docs`);
+  console.log(`Documentación disponible en /api-docs`);
 });
